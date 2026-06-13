@@ -13,17 +13,17 @@ export default function Contact({ profile }: ContactProps) {
 
   return (
     <Section id="contact" eyebrow="Get in touch" title="Let's talk">
-      <Reveal className="rounded-2xl border border-border bg-surface p-8 text-center">
+      <Reveal className="rounded-2xl border border-border bg-surface p-6 text-center sm:p-8">
         <p className="mx-auto max-w-xl text-muted">
           I'm open to opportunities in data engineering and applied ML/NLP. The fastest way to reach me is by
           email.
         </p>
         <a
           {...emailAttrs}
-          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-medium text-bg transition-transform hover:scale-[1.03]"
+          className="mt-6 inline-flex max-w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg transition-transform hover:scale-[1.03] sm:px-5 sm:text-base"
         >
-          <Icon name="mail" className="h-5 w-5" />
-          {profile.email}
+          <Icon name="mail" className="h-5 w-5 shrink-0" />
+          <span className="truncate">{profile.email}</span>
         </a>
 
         <ul className="mt-6 flex items-center justify-center gap-4">
