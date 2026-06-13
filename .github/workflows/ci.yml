@@ -1,0 +1,42 @@
+name: CI
+
+# Run quality gates on every push and pull request.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Reproducible, lockfile-pinned install.
+      - name: Install dependencies
+        run: npm ci
+
+      # Fail the build if any dependency has a known high-severity advisory.
+      - name: Security audit
+        run: npm audit --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
