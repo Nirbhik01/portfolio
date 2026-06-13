@@ -3,10 +3,12 @@ import type { Profile } from '../config/types';
 import { getScrollProgress } from '../utils/scroll';
 
 const NAV_LINKS = [
+  { href: '#top', label: 'Home' },
   { href: '#about', label: 'About' },
   { href: '#experience', label: 'Experience' },
   { href: '#projects', label: 'Projects' },
   { href: '#skills', label: 'Skills' },
+  { href: '#education', label: 'Education' },
   { href: '#contact', label: 'Contact' },
 ];
 
@@ -72,8 +74,8 @@ export default function Navbar({ profile }: NavbarProps) {
           <span className="hidden sm:inline">{profile.name}</span>
         </a>
 
-        {/* Inline links on md+ screens. */}
-        <ul className="hidden items-center gap-1 md:flex lg:gap-2">
+        {/* Inline links on lg+ screens (7 links need the room); hamburger below. */}
+        <ul className="hidden items-center gap-1 lg:flex lg:gap-1.5">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <a
@@ -93,7 +95,7 @@ export default function Navbar({ profile }: NavbarProps) {
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-2 text-text transition-colors hover:border-accent md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-2 text-text transition-colors hover:border-accent lg:hidden"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             {menuOpen ? (
@@ -108,8 +110,8 @@ export default function Navbar({ profile }: NavbarProps) {
       {/* Collapsible mobile menu. */}
       <div
         id="mobile-menu"
-        className={`overflow-hidden border-border bg-bg/95 backdrop-blur transition-[max-height] duration-300 md:hidden ${
-          menuOpen ? 'max-h-80 border-b' : 'max-h-0'
+        className={`overflow-hidden border-border bg-bg/95 backdrop-blur transition-[max-height] duration-300 lg:hidden ${
+          menuOpen ? 'max-h-96 border-b' : 'max-h-0'
         }`}
       >
         <ul className="mx-auto flex max-w-5xl flex-col gap-1 px-5 pb-4 pt-1">

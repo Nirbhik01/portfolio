@@ -46,7 +46,7 @@ function SectionTracker({ panels, index }: { panels: Panel[]; index: number }) {
   return (
     <nav
       aria-label="Sections"
-      className="fixed left-5 top-1/2 z-20 hidden -translate-y-1/2 md:block"
+      className="fixed left-5 top-1/2 z-20 hidden -translate-y-1/2 lg:block"
     >
       <ul className="space-y-3.5">
         {panels.map((panel, i) => {
