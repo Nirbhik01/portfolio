@@ -82,13 +82,13 @@ export default function App() {
 
       {/* In the pinned experience the footer is fixed chrome; in the reduced-
           motion (stacked) fallback it sits at the natural end of the document. */}
-      {reducedMotion ? (
+      {/* {reducedMotion ? (
         <Footer note={footerNote} year={year} />
       ) : (
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[2]">
           <Footer note={footerNote} year={year} />
         </div>
-      )}
+      )} */}
     </>
   );
 }
