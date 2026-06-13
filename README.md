@@ -72,8 +72,9 @@ builds the site, and publishes `dist/` to GitHub Pages. The site is served from
 a project sub-path (`/portfolio/`); override via the `PUBLIC_BASE_PATH`
 environment variable if you rename the repo.
 
-> **One-time setup:** in the repository, go to **Settings → Pages → Build and
-> deployment → Source** and select **GitHub Actions**.
+> The deploy workflow enables Pages automatically on its first run. If that
+> step is blocked by org settings, enable it manually: **Settings → Pages →
+> Build and deployment → Source → GitHub Actions**.
 
 ## License
 

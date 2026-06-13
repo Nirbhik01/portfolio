@@ -36,6 +36,13 @@ jobs:
       - name: Test
         run: npm test
 
+      # Enables Pages on the repo (source = GitHub Actions) on first run, so no
+      # manual Settings → Pages step is required.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Build
         run: npm run build
 
