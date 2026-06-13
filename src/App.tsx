@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import portfolioConfig from './config/portfolio.config';
 import { validateConfig } from './config/validate';
-import { useReducedMotion } from './hooks/useReducedMotion';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Section from './components/Section';
@@ -10,7 +9,6 @@ import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Education from './components/Education';
 import Contact from './components/Contact';
-import Footer from './components/Footer';
 import Preloader from './components/Preloader';
 import Reveal from './components/Reveal';
 import StageDeck, { type Panel } from './components/StageDeck';
@@ -23,9 +21,7 @@ const Scene3D = lazy(() => import('./components/Scene3D'));
 const config = validateConfig(portfolioConfig);
 
 export default function App() {
-  const { profile, experience, projects, skills, education, interests, footerNote } = config;
-  const reducedMotion = useReducedMotion();
-  const year = new Date().getFullYear();
+  const { profile, experience, projects, skills, education, interests } = config;
 
   // Each panel is one "stop" on the scroll journey. The id doubles as the
   // anchor target the navbar / section tracker jump to.
@@ -79,16 +75,6 @@ export default function App() {
       <main id="main">
         <StageDeck panels={panels} />
       </main>
-
-      {/* In the pinned experience the footer is fixed chrome; in the reduced-
-          motion (stacked) fallback it sits at the natural end of the document. */}
-      {/* {reducedMotion ? (
-        <Footer note={footerNote} year={year} />
-      ) : (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[2]">
-          <Footer note={footerNote} year={year} />
-        </div>
-      )} */}
     </>
   );
 }
