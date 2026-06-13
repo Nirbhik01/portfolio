@@ -1,114 +1,163 @@
-import { Suspense, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, OrbitControls, Points, PointMaterial } from '@react-three/drei';
+import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { getScrollProgress } from '../utils/scroll';
 
-/**
- * A slowly rotating cluster of wireframe geometry that forms the hero
- * backdrop. Auto-rotation pauses when the user prefers reduced motion.
+/*
+ * Scroll-driven flythrough.
+ *
+ * The page doesn't visually "scroll" so much as scrub a camera forward down a
+ * winding tunnel of glowing rings — scroll position maps directly to how far
+ * along the tunnel the camera has travelled. This is the hubtown.co.in feel:
+ * scroll as a playback head, not as page translation.
  */
-function FloatingCluster({ animate }: { animate: boolean }) {
-  const group = useRef<THREE.Group>(null);
 
-  useFrame((_, delta) => {
-    if (!animate || !group.current) return;
-    group.current.rotation.y += delta * 0.15;
-    group.current.rotation.x += delta * 0.04;
-  });
+const RING_COUNT = 38;
+const RING_SPACING = 6;
+const TUNNEL_LENGTH = RING_COUNT * RING_SPACING;
+const START_Z = 10; // camera's z at scroll = 0
+const END_Z = -(TUNNEL_LENGTH - 26); // camera's z at scroll = 1
+
+/** The gentle winding centre-line of the tunnel, parameterised by world-z. */
+function pathAt(z: number, out = new THREE.Vector3()): THREE.Vector3 {
+  return out.set(Math.sin(z * 0.025) * 4, Math.cos(z * 0.02) * 2, z);
+}
+
+/** Glowing rings laid out along the path — the "road" the camera flies down. */
+function Tunnel() {
+  const rings = useMemo(
+    () =>
+      Array.from({ length: RING_COUNT }, (_, i) => {
+        const z = -i * RING_SPACING;
+        const p = pathAt(z);
+        return {
+          position: [p.x, p.y, z] as [number, number, number],
+          spin: i * 0.32,
+          color: i % 2 === 0 ? '#38bdf8' : '#818cf8',
+        };
+      }),
+    [],
+  );
 
   return (
-    <group ref={group}>
-      <Float speed={animate ? 1.4 : 0} rotationIntensity={animate ? 0.6 : 0} floatIntensity={animate ? 1.1 : 0}>
-        <mesh position={[0, 0, 0]}>
-          <torusKnotGeometry args={[1.1, 0.32, 180, 24]} />
-          <meshStandardMaterial
-            color="#38bdf8"
-            emissive="#1e3a5f"
-            metalness={0.6}
-            roughness={0.25}
-            wireframe
+    <group>
+      {rings.map((ring, i) => (
+        <mesh key={i} position={ring.position} rotation={[0, 0, ring.spin]}>
+          <torusGeometry args={[3.2, 0.045, 8, 64]} />
+          <meshBasicMaterial
+            color={ring.color}
+            transparent
+            opacity={0.45}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
           />
         </mesh>
-      </Float>
-      <Float speed={animate ? 1 : 0} rotationIntensity={animate ? 0.4 : 0} floatIntensity={animate ? 0.8 : 0}>
-        <mesh position={[2.6, 1.2, -1.5]} scale={0.5}>
-          <icosahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color="#818cf8" metalness={0.4} roughness={0.4} wireframe />
-        </mesh>
-      </Float>
-      <Float speed={animate ? 1.2 : 0} rotationIntensity={animate ? 0.5 : 0} floatIntensity={animate ? 0.9 : 0}>
-        <mesh position={[-2.7, -1.1, -1]} scale={0.42}>
-          <octahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color="#38bdf8" metalness={0.4} roughness={0.4} wireframe />
-        </mesh>
-      </Float>
+      ))}
     </group>
   );
 }
 
-/** A field of drifting points for depth. */
-function StarField({ animate }: { animate: boolean }) {
-  const ref = useRef<THREE.Points>(null);
-
-  // Deterministic point cloud (no Math.random in render path keeps it stable).
+/** A haze of points hugging the path, for a sense of speed and depth. */
+function Dust() {
   const positions = useMemo(() => {
-    const count = 900;
+    const count = 1300;
     const arr = new Float32Array(count * 3);
+    const tmp = new THREE.Vector3();
     for (let i = 0; i < count; i++) {
-      // Cheap deterministic scatter based on index.
-      const a = i * 2.39996; // golden-angle spiral
-      const r = 6 + (i % 50) * 0.08;
-      arr[i * 3] = Math.cos(a) * r;
-      arr[i * 3 + 1] = ((i % 37) - 18) * 0.45;
-      arr[i * 3 + 2] = Math.sin(a) * r - 4;
+      const z = -(i / count) * TUNNEL_LENGTH;
+      pathAt(z, tmp);
+      const a = i * 2.39996; // golden-angle scatter
+      const r = 1.4 + (i % 30) * 0.13;
+      arr[i * 3] = tmp.x + Math.cos(a) * r;
+      arr[i * 3 + 1] = tmp.y + Math.sin(a) * r;
+      arr[i * 3 + 2] = z + ((i % 13) - 6) * 0.3;
     }
     return arr;
   }, []);
 
-  useFrame((_, delta) => {
-    if (!animate || !ref.current) return;
-    ref.current.rotation.y += delta * 0.02;
-  });
-
   return (
-    <Points ref={ref} positions={positions} frustumCulled>
-      <PointMaterial transparent color="#9aa7bd" size={0.05} sizeAttenuation depthWrite={false} />
+    <Points positions={positions} frustumCulled={false}>
+      <PointMaterial transparent color="#9aa7bd" size={0.06} sizeAttenuation depthWrite={false} opacity={0.7} />
     </Points>
   );
 }
 
 /**
- * Full-bleed 3D background canvas. Rendered behind the hero content with
- * pointer interaction enabled (drag to orbit) but no zoom/pan.
+ * Moves the camera along the path each frame. Scroll progress is read from a
+ * ref (updated by a passive listener) so per-frame motion never triggers a
+ * React re-render. The eased value chases the target, smoothing scroll jumps.
+ */
+function CameraRig({ animate }: { animate: boolean }) {
+  const target = useRef(0);
+  const eased = useRef(0);
+  const posVec = useRef(new THREE.Vector3());
+  const lookVec = useRef(new THREE.Vector3());
+
+  useEffect(() => {
+    let raf = 0;
+    const read = () => {
+      target.current = getScrollProgress();
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  useFrame((state, delta) => {
+    const goal = animate ? target.current : 0;
+    // Critically-damped chase toward the scroll target.
+    eased.current += (goal - eased.current) * Math.min(1, delta * 3.5);
+
+    const z = THREE.MathUtils.lerp(START_Z, END_Z, eased.current);
+    pathAt(z, posVec.current);
+    pathAt(z - 10, lookVec.current); // aim a little further down the tunnel
+
+    state.camera.position.copy(posVec.current);
+    if (animate) {
+      // Subtle idle drift so the scene breathes even when scroll is still.
+      state.camera.position.x += Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
+      state.camera.position.y += Math.cos(state.clock.elapsedTime * 0.25) * 0.1;
+    }
+    state.camera.lookAt(lookVec.current);
+  });
+
+  return null;
+}
+
+/**
+ * Fixed, full-viewport backdrop rendered behind all page content. Decorative
+ * (aria-hidden); a global scrim in App keeps text legible over the motion.
  */
 export default function Scene3D() {
   const reducedMotion = useReducedMotion();
   const animate = !reducedMotion;
+  const start = pathAt(START_Z);
 
   return (
-    <div className="absolute inset-0 -z-10" aria-hidden="true" data-testid="scene-3d">
+    <div className="fixed inset-0 -z-10" aria-hidden="true" data-testid="scene-3d">
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 55 }}
+        camera={{ position: [start.x, start.y, START_Z], fov: 72 }}
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
       >
         <color attach="background" args={['#05060a']} />
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 5, 5]} intensity={1.1} />
-        <pointLight position={[-5, -3, -2]} intensity={0.6} color="#818cf8" />
+        <fog attach="fog" args={['#05060a', 6, 46]} />
         <Suspense fallback={null}>
-          <FloatingCluster animate={animate} />
-          <StarField animate={animate} />
+          <Tunnel />
+          <Dust />
         </Suspense>
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          autoRotate={animate}
-          autoRotateSpeed={0.6}
-          rotateSpeed={0.4}
-          makeDefault
-        />
+        <CameraRig animate={animate} />
       </Canvas>
     </div>
   );

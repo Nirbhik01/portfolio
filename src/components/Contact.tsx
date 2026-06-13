@@ -1,6 +1,7 @@
 import type { Profile } from '../config/types';
 import Section from './Section';
 import Icon from './Icon';
+import Reveal from './Reveal';
 import { safeLinkAttrs } from '../utils/links';
 
 interface ContactProps {
@@ -12,7 +13,7 @@ export default function Contact({ profile }: ContactProps) {
 
   return (
     <Section id="contact" eyebrow="Get in touch" title="Let's talk">
-      <div className="rounded-2xl border border-border bg-surface p-8 text-center">
+      <Reveal className="rounded-2xl border border-border bg-surface p-8 text-center">
         <p className="mx-auto max-w-xl text-muted">
           I'm open to opportunities in data engineering and applied ML/NLP. The fastest way to reach me is by
           email.
@@ -42,7 +43,7 @@ export default function Contact({ profile }: ContactProps) {
             );
           })}
         </ul>
-      </div>
+      </Reveal>
     </Section>
   );
 }

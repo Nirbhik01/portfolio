@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Profile } from '../config/types';
+import { getScrollProgress } from '../utils/scroll';
 
 const NAV_LINKS = [
   { href: '#about', label: 'About' },
@@ -16,12 +17,26 @@ interface NavbarProps {
 /** Sticky top navigation with anchor links to each section. */
 export default function Navbar({ profile }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    let raf = 0;
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        // Drive the progress bar straight to the DOM — no re-render per frame.
+        if (barRef.current) barRef.current.style.transform = `scaleX(${getScrollProgress()})`;
+      });
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   // Initials for the brand mark.
@@ -60,6 +75,14 @@ export default function Navbar({ profile }: NavbarProps) {
           ))}
         </ul>
       </nav>
+
+      {/* Scroll-progress bar pinned to the bottom edge of the header. */}
+      <div
+        ref={barRef}
+        className="h-0.5 origin-left bg-gradient-to-r from-accent to-accent-2"
+        style={{ transform: 'scaleX(0)' }}
+        aria-hidden="true"
+      />
     </header>
   );
 }

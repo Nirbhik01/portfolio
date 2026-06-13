@@ -79,3 +79,50 @@ body {
   background-clip: text;
   color: transparent;
 }
+
+/* Local readability gradient behind the hero text, over the 3D flythrough. */
+.hero-scrim {
+  background: radial-gradient(ellipse at center, rgba(5, 6, 10, 0) 35%, rgba(5, 6, 10, 0.78) 100%);
+}
+
+/* ---------------------------------------------------------------------------
+ * Scroll-triggered reveal (see components/Reveal.tsx). Elements start shifted
+ * down and transparent, then settle once they enter the viewport.
+ * ------------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Bouncing "scroll to explore" cue in the hero. */
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+.animate-scroll-cue {
+  animation: scroll-cue 1.8s ease-in-out infinite;
+}
+
+/* Hide the scrollbar on the per-panel overflow container (StageDeck) while
+   keeping it scrollable, so tall panels stay clean. */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* WebKit */
+}

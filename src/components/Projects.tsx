@@ -1,6 +1,7 @@
 import type { Project } from '../config/types';
 import Section from './Section';
 import Chip from './Chip';
+import Reveal from './Reveal';
 import { safeLinkAttrs } from '../utils/links';
 
 interface ProjectsProps {
@@ -41,10 +42,12 @@ function ProjectCard({ project }: { project: Project }) {
 
 export default function Projects({ items }: ProjectsProps) {
   return (
-    <Section id="projects" eyebrow="Selected work" title="Projects">
+    <Section id="projects" eyebrow="" className="mt-4" title="Projects">
       <div className="grid gap-5 sm:grid-cols-2">
-        {items.map((project) => (
-          <ProjectCard key={project.name} project={project} />
+        {items.map((project, i) => (
+          <Reveal key={project.name} className="h-full" delay={(i % 2) * 90}>
+            <ProjectCard project={project} />
+          </Reveal>
         ))}
       </div>
     </Section>
