@@ -23,6 +23,13 @@
 
 html {
   scroll-behavior: smooth;
+  /* Hide the page scrollbar — the pinned deck still scrubs via this scroll
+     track, we just don't want the bar visible. Scrolling stays fully working. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge/IE */
+}
+html::-webkit-scrollbar {
+  display: none; /* Chrome / Safari / WebKit */
 }
 
 body {
