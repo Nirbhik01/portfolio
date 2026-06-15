@@ -9,6 +9,7 @@ import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Education from './components/Education';
 import Contact from './components/Contact';
+import GithubActivity from './components/GithubActivity';
 import Preloader from './components/Preloader';
 import Reveal from './components/Reveal';
 import StageDeck, { type Panel } from './components/StageDeck';
@@ -46,6 +47,7 @@ export default function App() {
     { id: 'experience', label: 'Experience', content: <Experience items={experience} /> },
     { id: 'projects', label: 'Projects', content: <Projects items={projects} /> },
     { id: 'skills', label: 'Skills', content: <Skills groups={skills} /> },
+    { id: 'activity', label: 'Activity', content: <GithubActivity /> },
     { id: 'education', label: 'Education', content: <Education items={education} interests={interests} /> },
     { id: 'contact', label: 'Contact', content: <Contact profile={profile} /> },
   ];

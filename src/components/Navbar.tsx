@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: '#experience', label: 'Experience' },
   { href: '#projects', label: 'Projects' },
   { href: '#skills', label: 'Skills' },
+  { href: '#activity', label: 'Activity' },
   { href: '#education', label: 'Education' },
   { href: '#contact', label: 'Contact' },
 ];
@@ -74,13 +75,13 @@ export default function Navbar({ profile }: NavbarProps) {
           <span className="hidden sm:inline">{profile.name}</span>
         </a>
 
-        {/* Inline links on lg+ screens (7 links need the room); hamburger below. */}
-        <ul className="hidden items-center gap-1 lg:flex lg:gap-1.5">
+        {/* Inline links on lg+ screens (the full set needs the room); hamburger below. */}
+        <ul className="hidden items-center lg:flex lg:gap-0.5">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="rounded-md px-2.5 py-1.5 text-sm text-muted transition-colors hover:text-text lg:px-3"
+                className="rounded-md px-2 py-1.5 text-sm text-muted transition-colors hover:text-text"
               >
                 {link.label}
               </a>

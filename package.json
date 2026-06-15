@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "fetch:activity": "node scripts/fetch-github-activity.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

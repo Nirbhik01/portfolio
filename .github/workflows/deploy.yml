@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Daily rebuild so the baked GitHub activity heatmap stays current.
+  schedule:
+    - cron: '17 6 * * *'
 
 # Least-privilege tokens required by the Pages deployment.
 permissions:
@@ -42,6 +45,16 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+
+      # Bake the latest GitHub contribution data into the build. Fails safe:
+      # if the fetch errors, the committed fallback data is used instead.
+      - name: Fetch GitHub activity
+        run: node scripts/fetch-github-activity.mjs
+        env:
+          GITHUB_ACTIVITY_LOGIN: Nirbhik01
+          # Uses the built-in token by default; if GitHub restricts the
+          # contributions query, add a read-only PAT as the ACTIVITY_TOKEN secret.
+          GH_TOKEN: ${{ secrets.ACTIVITY_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: npm run build
