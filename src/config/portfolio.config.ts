@@ -28,7 +28,7 @@ export const portfolioConfig: PortfolioConfig = {
     {
       role: 'Associate Data Engineer',
       company: 'PMSquare Nepal',
-      period: 'June 2025 – Present',
+      period: 'October 2025 – Present',
       project: 'SmartShift — Data Migration Platform for Ticket Management Systems',
       stack: ['Python', 'Temporal.io', 'REST APIs', 'ETL'],
       highlights: [
