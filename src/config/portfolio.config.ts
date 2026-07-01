@@ -49,7 +49,6 @@ export const portfolioConfig: PortfolioConfig = {
         'erase training-data influence from neural networks via gradient ascent and ' +
         'influence functions, enabling targeted data removal without full retraining.',
       stack: ['Python', 'PyTorch', 'Gradient-Based Unlearning'],
-      ongoing: true,
     },
     {
       name: 'Multimodal-RAG',
