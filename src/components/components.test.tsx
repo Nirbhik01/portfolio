@@ -6,6 +6,7 @@ import Experience from './Experience';
 import Education from './Education';
 import Contact from './Contact';
 import { portfolioConfig } from '../config/portfolio.config';
+import type { Project } from '../config/types';
 
 const { projects, skills, experience, education, interests, profile } = portfolioConfig;
 
@@ -19,11 +20,34 @@ describe('Projects', () => {
     expect(screen.getAllByText('PyTorch').length).toBeGreaterThan(0);
   });
 
-  it('flags ongoing projects with a badge', () => {
+  // The `ongoing` flag is a real per-project toggle for completion status.
+  // Prove it works in BOTH directions with controlled data, independent of
+  // whatever the live config currently contains.
+  it('shows the Ongoing badge only on projects flagged ongoing', () => {
+    const sample: Project[] = [
+      { name: 'Active Project', description: 'In progress.', stack: ['Python'], ongoing: true },
+      { name: 'Shipped Project', description: 'Finished.', stack: ['Python'], ongoing: false },
+      { name: 'Legacy Project', description: 'No flag.', stack: ['Python'] },
+    ];
+    render(<Projects items={sample} />);
+
+    // Exactly one badge overall — only the flagged project gets one.
+    expect(screen.getAllByText('Ongoing')).toHaveLength(1);
+
+    const badgeOn = (name: string) => {
+      const card = screen.getByText(name).closest('article');
+      expect(card).not.toBeNull();
+      return within(card as HTMLElement).queryByText('Ongoing');
+    };
+    expect(badgeOn('Active Project')).toBeInTheDocument();
+    expect(badgeOn('Shipped Project')).toBeNull(); // ongoing: false → no badge
+    expect(badgeOn('Legacy Project')).toBeNull(); // ongoing omitted → no badge
+  });
+
+  // And the live config must render exactly as many badges as it declares.
+  it('renders one Ongoing badge per ongoing project in the config', () => {
     render(<Projects items={projects} />);
-    // queryAllByText returns [] (rather than throwing) when no project is
-    // currently marked ongoing, so this holds for 0 or N ongoing projects.
-    expect(screen.queryAllByText('Ongoing').length).toBe(projects.filter((p) => p.ongoing).length);
+    expect(screen.queryAllByText('Ongoing')).toHaveLength(projects.filter((p) => p.ongoing).length);
   });
 });
 
