@@ -52,8 +52,11 @@ describe('portfolioConfig integrity', () => {
     }
   });
 
-  it('marks the ongoing project correctly', () => {
-    const ongoing = portfolioConfig.projects.filter((p) => p.ongoing);
-    expect(ongoing.map((p) => p.name)).toContain('Machine Unlearning');
+  it('has a well-formed ongoing flag on every project', () => {
+    // `ongoing` is optional; when present it must be a boolean so the UI badge
+    // renders predictably. (No project is required to be ongoing.)
+    for (const p of portfolioConfig.projects) {
+      expect(['undefined', 'boolean'], p.name).toContain(typeof p.ongoing);
+    }
   });
 });

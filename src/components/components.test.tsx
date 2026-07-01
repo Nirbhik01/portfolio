@@ -21,7 +21,9 @@ describe('Projects', () => {
 
   it('flags ongoing projects with a badge', () => {
     render(<Projects items={projects} />);
-    expect(screen.getAllByText('Ongoing').length).toBe(projects.filter((p) => p.ongoing).length);
+    // queryAllByText returns [] (rather than throwing) when no project is
+    // currently marked ongoing, so this holds for 0 or N ongoing projects.
+    expect(screen.queryAllByText('Ongoing').length).toBe(projects.filter((p) => p.ongoing).length);
   });
 });
 
